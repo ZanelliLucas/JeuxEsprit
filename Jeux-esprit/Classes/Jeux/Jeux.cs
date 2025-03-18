@@ -186,7 +186,7 @@ namespace JeuxDesprit
         /// Affiche le nombre de parties jouées pour un type de jeu donné
         /// </summary>
         /// <param name="idType">Identifiant du type de jeu</param>
-        public void afficherNbPartieJouéeParType(int idType)
+        public void afficherNbPartieJoueeParType(int idType)
         {
             try
             {
@@ -215,7 +215,7 @@ namespace JeuxDesprit
         /// </summary>
         /// <param name="date">Date de recherche</param>
         /// <param name="idType">Identifiant du type d'épreuve</param>
-        public void afficherNbPartieJouéeAUneDateParType(DateTime date, int idType)
+        public void afficherNbPartieJoueeAUneDateParType(DateTime date, int idType)
         {
             try
             {
@@ -245,7 +245,7 @@ namespace JeuxDesprit
         /// </summary>
         /// <param name="idJoueur">Identifiant du joueur</param>
         /// <param name="date">Date de recherche</param>
-        public void afficherNbPartieJouéeJoueurAUneDate(int idJoueur, DateTime date)
+        public void afficherNbPartieJoueeJoueurAUneDate(int idJoueur, DateTime date)
         {
             try
             {

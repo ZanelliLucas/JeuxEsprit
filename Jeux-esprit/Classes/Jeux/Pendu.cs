@@ -13,8 +13,8 @@ namespace JeuxDesprit
     {
         private readonly List<string> motsFaciles = new List<string> { "chat", "chien", "arbre", "maison", "soleil", "jeu", "fleur" };
         private readonly List<string> motsMoyens = new List<string> { "ordinateur", "voiture", "piscine", "montagne", "valise", "piano" };
-        private readonly List<string> motsDifficiles = new List<string> { "développement", "algorithme", "environnement", "communication", "interface" };
-        private readonly List<string> motsExperts = new List<string> { "anticonstitutionnellement", "chronophotographie", "électroencéphalogramme", "psychophysiologique" };
+        private readonly List<string> motsDifficiles = new List<string> { "developpement", "algorithme", "environnement", "communication", "interface" };
+        private readonly List<string> motsExperts = new List<string> { "anticonstitutionnellement", "chronophotographie", "electroencephalogramme", "psychophysiologique" };
 
         private int nombreEssaisMax;
 
@@ -274,3 +274,5 @@ namespace JeuxDesprit
             
             return baseScore + erreurScore + tempsScore;
         }
+    }
+}

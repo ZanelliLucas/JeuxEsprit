@@ -73,3 +73,5 @@ namespace JeuxDesprit
             this.tempsEffectue = tempsEffectue;
             this.datePartie = DateTime.Now;
         }
+    }
+}
