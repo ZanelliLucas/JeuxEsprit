@@ -7,8 +7,10 @@ namespace JeuxDesprit
     class Program
     {
         private static DatabaseManager dbManager;
+        private static AuthManager authManager;
         private static Joueur joueurActuel;
         private static bool applicationRunning = true;
+        private static bool estConnecte = false;
 
         static void Main(string[] args)
         {
@@ -17,23 +19,175 @@ namespace JeuxDesprit
             // Initialiser le gestionnaire de base de données
             dbManager = new DatabaseManager();
             
+            // Initialiser le gestionnaire d'authentification
+            authManager = new AuthManager(dbManager);
+            
             // Tester la connexion à la base de données
             if (!dbManager.TestConnection())
             {
                 Console.WriteLine("Impossible de se connecter à la base de données. L'application va s'exécuter sans persistance des données.");
             }
             
-            // Initialiser un joueur par défaut pour les tests
-            joueurActuel = new Joueur("Invité", "invite@example.com", "avatar_default.png");
-            
-            // Boucle principale de l'application
+            // Afficher l'écran d'accueil avec connexion/inscription
             while (applicationRunning)
             {
-                AfficherMenuPrincipal();
-                TraiterChoixMenuPrincipal();
+                if (!estConnecte)
+                {
+                    AfficherEcranAccueil();
+                }
+                else
+                {
+                    AfficherMenuPrincipal();
+                    TraiterChoixMenuPrincipal();
+                }
             }
             
             Console.WriteLine("Merci d'avoir utilisé Jeux d'Esprit. À bientôt !");
+        }
+
+        /// <summary>
+        /// Affiche l'écran d'accueil avec les options de connexion et d'inscription
+        /// </summary>
+        static void AfficherEcranAccueil()
+        {
+            Console.Clear();
+            Console.WriteLine("\n========== JEUX D'ESPRIT ==========");
+            Console.WriteLine("1- Se connecter");
+            Console.WriteLine("2- Créer un compte");
+            Console.WriteLine("3- Quitter l'application");
+            Console.WriteLine("===================================");
+            Console.Write("Votre choix : ");
+            
+            string choix = Console.ReadLine();
+            
+            switch (choix)
+            {
+                case "1":
+                    SeConnecter();
+                    break;
+                case "2":
+                    CreerCompte();
+                    break;
+                case "3":
+                    applicationRunning = false;
+                    break;
+                default:
+                    Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Gère le processus de connexion
+        /// </summary>
+        static void SeConnecter()
+        {
+            Console.Clear();
+            Console.WriteLine("\n========== CONNEXION ==========");
+            
+            Console.Write("Email : ");
+            string email = Console.ReadLine();
+            
+            Console.Write("Mot de passe : ");
+            string motDePasse = MasquerMotDePasse();
+            
+            joueurActuel = authManager.Connexion(email, motDePasse);
+            
+            if (joueurActuel != null)
+            {
+                Console.WriteLine("\nConnexion réussie !");
+                estConnecte = true;
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("\nÉchec de la connexion. Vérifiez vos informations.");
+                Console.ReadKey();
+            }
+        }
+
+        /// <summary>
+        /// Gère le processus de création de compte
+        /// </summary>
+        static void CreerCompte()
+        {
+            Console.Clear();
+            Console.WriteLine("\n========== CRÉATION DE COMPTE ==========");
+            
+            Console.Write("Nom : ");
+            string nom = Console.ReadLine();
+            
+            Console.Write("Email : ");
+            string email = Console.ReadLine();
+            
+            Console.Write("Mot de passe : ");
+            string motDePasse = MasquerMotDePasse();
+            
+            Console.Write("Avatar (description ou chemin) : ");
+            string avatar = Console.ReadLine();
+            
+            Console.WriteLine("Type de joueur :");
+            Console.WriteLine("1 - Amateur");
+            Console.WriteLine("2 - Professionnel");
+            Console.Write("Votre choix : ");
+            string typeChoix = Console.ReadLine();
+            
+            string type = typeChoix == "2" ? "professionnel" : "amateur";
+            
+            int idJoueur = authManager.CreerCompte(nom, email, motDePasse, avatar, type);
+            
+            if (idJoueur != -1)
+            {
+                Console.WriteLine("\nCompte créé avec succès ! Vous pouvez maintenant vous connecter.");
+            }
+            else
+            {
+                Console.WriteLine("\nÉchec de la création du compte. Veuillez réessayer.");
+            }
+            
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Masque l'entrée du mot de passe en affichant des astérisques
+        /// </summary>
+        /// <returns>Mot de passe saisi</returns>
+        static string MasquerMotDePasse()
+        {
+            string motDePasse = "";
+            ConsoleKeyInfo key;
+            
+            do
+            {
+                key = Console.ReadKey(true);
+                
+                // Ignorer les touches spéciales comme Enter, Backspace, etc.
+                if (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Escape)
+                {
+                    motDePasse += key.KeyChar;
+                    Console.Write("*");
+                }
+                else if (key.Key == ConsoleKey.Backspace && motDePasse.Length > 0)
+                {
+                    motDePasse = motDePasse.Substring(0, motDePasse.Length - 1);
+                    Console.Write("\b \b"); // Efface le dernier caractère
+                }
+            } while (key.Key != ConsoleKey.Enter);
+            
+            Console.WriteLine();
+            return motDePasse;
+        }
+
+        /// <summary>
+        /// Déconnecte l'utilisateur actuel
+        /// </summary>
+        static void Deconnecter()
+        {
+            joueurActuel = null;
+            estConnecte = false;
+            Console.WriteLine("\nVous avez été déconnecté avec succès.");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -41,13 +195,16 @@ namespace JeuxDesprit
         /// </summary>
         static void AfficherMenuPrincipal()
         {
+            Console.Clear();
+            Console.WriteLine($"\nUtilisateur connecté : {joueurActuel.GetNom()}");
             Console.WriteLine("\n========== MENU PRINCIPAL ==========");
             Console.WriteLine("1- Jeux");
             Console.WriteLine("2- Joueurs");
             Console.WriteLine("3- Types de jeu");
             Console.WriteLine("4- Jouer");
             Console.WriteLine("5- Consulter l'historique des jeux");
-            Console.WriteLine("6- Quitter l'application");
+            Console.WriteLine("6- Se déconnecter");
+            Console.WriteLine("7- Quitter l'application");
             Console.WriteLine("====================================");
             Console.Write("Votre choix : ");
         }
@@ -77,10 +234,14 @@ namespace JeuxDesprit
                     MenuHistorique();
                     break;
                 case "6":
+                    Deconnecter();
+                    break;
+                case "7":
                     applicationRunning = false;
                     break;
                 default:
                     Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                    Console.ReadKey();
                     break;
             }
         }
@@ -94,6 +255,7 @@ namespace JeuxDesprit
             
             while (menuJeuxRunning)
             {
+                Console.Clear();
                 Console.WriteLine("\n========== MENU JEUX ==========");
                 Console.WriteLine("a. Ajouter un jeu");
                 Console.WriteLine("b. Modifier un jeu");
@@ -107,15 +269,18 @@ namespace JeuxDesprit
                 {
                     case "a":
                         Console.WriteLine("Fonctionnalité 'Ajouter un jeu' non implémentée dans cette version.");
+                        Console.ReadKey();
                         break;
                     case "b":
                         Console.WriteLine("Fonctionnalité 'Modifier un jeu' non implémentée dans cette version.");
+                        Console.ReadKey();
                         break;
                     case "c":
                         menuJeuxRunning = false;
                         break;
                     default:
                         Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                        Console.ReadKey();
                         break;
                 }
             }
@@ -130,6 +295,7 @@ namespace JeuxDesprit
             
             while (menuJoueursRunning)
             {
+                Console.Clear();
                 Console.WriteLine("\n========== MENU JOUEURS ==========");
                 Console.WriteLine("a. Ajouter un joueur");
                 Console.WriteLine("b. Modifier un joueur");
@@ -146,12 +312,14 @@ namespace JeuxDesprit
                         break;
                     case "b":
                         Console.WriteLine("Fonctionnalité 'Modifier un joueur' non implémentée dans cette version.");
+                        Console.ReadKey();
                         break;
                     case "c":
                         menuJoueursRunning = false;
                         break;
                     default:
                         Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                        Console.ReadKey();
                         break;
                 }
             }
@@ -162,6 +330,7 @@ namespace JeuxDesprit
         /// </summary>
         static void AjouterJoueur()
         {
+            Console.Clear();
             Console.WriteLine("\n=== AJOUTER UN JOUEUR ===");
             
             Console.Write("Nom : ");
@@ -208,13 +377,13 @@ namespace JeuxDesprit
             if (idJoueur != -1)
             {
                 Console.WriteLine($"Joueur ajouté avec succès ! ID : {idJoueur}");
-                joueurActuel = nouveauJoueur;
             }
             else
             {
                 Console.WriteLine("Erreur lors de l'ajout du joueur. Joueur créé en mémoire uniquement.");
-                joueurActuel = nouveauJoueur;
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -226,6 +395,7 @@ namespace JeuxDesprit
             
             while (menuTypesJeuRunning)
             {
+                Console.Clear();
                 Console.WriteLine("\n========== MENU TYPES DE JEU ==========");
                 Console.WriteLine("a. Ajouter un type de jeu");
                 Console.WriteLine("b. Modifier un type de jeu");
@@ -240,9 +410,11 @@ namespace JeuxDesprit
                 {
                     case "a":
                         Console.WriteLine("Fonctionnalité 'Ajouter un type de jeu' non implémentée dans cette version.");
+                        Console.ReadKey();
                         break;
                     case "b":
                         Console.WriteLine("Fonctionnalité 'Modifier un type de jeu' non implémentée dans cette version.");
+                        Console.ReadKey();
                         break;
                     case "c":
                         ConsulterTypesJeu();
@@ -252,6 +424,7 @@ namespace JeuxDesprit
                         break;
                     default:
                         Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                        Console.ReadKey();
                         break;
                 }
             }
@@ -262,6 +435,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterTypesJeu()
         {
+            Console.Clear();
             Console.WriteLine("\n=== TYPES DE JEU DISPONIBLES ===");
             
             Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
@@ -278,6 +452,8 @@ namespace JeuxDesprit
                 Console.WriteLine("Aucun type de jeu trouvé ou erreur de connexion à la base de données.");
                 Console.WriteLine("Types de jeu par défaut : Cérébral, Tactique");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -285,6 +461,7 @@ namespace JeuxDesprit
         /// </summary>
         static void MenuJouer()
         {
+            Console.Clear();
             // Présenter la bienvenue au joueur
             joueurActuel.afficherJoueur();
             
@@ -302,6 +479,7 @@ namespace JeuxDesprit
             if (!int.TryParse(Console.ReadLine(), out int choixJeu) || choixJeu < 1 || choixJeu > jeux.Count)
             {
                 Console.WriteLine("Choix invalide. Retour au menu principal.");
+                Console.ReadKey();
                 return;
             }
             
@@ -329,6 +507,7 @@ namespace JeuxDesprit
             if (jeu == null)
             {
                 Console.WriteLine("Erreur lors de la création du jeu. Retour au menu principal.");
+                Console.ReadKey();
                 return;
             }
             
@@ -402,6 +581,9 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur lors de l'enregistrement de la partie : {ex.Message}");
             }
+            
+            Console.WriteLine("\nAppuyez sur une touche pour revenir au menu principal...");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -413,6 +595,7 @@ namespace JeuxDesprit
             
             while (menuHistoriqueRunning)
             {
+                Console.Clear();
                 Console.WriteLine("\n========== HISTORIQUE DES JEUX ==========");
                 Console.WriteLine("a. Consulter le nombre de victoires à une date donnée");
                 Console.WriteLine("b. Consulter le nombre de victoires pour un joueur donné");
@@ -455,6 +638,7 @@ namespace JeuxDesprit
                         break;
                     default:
                         Console.WriteLine("Choix invalide. Veuillez réessayer.");
+                        Console.ReadKey();
                         break;
                 }
             }
@@ -465,6 +649,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterVictoiresParDate()
         {
+            Console.Clear();
             Console.WriteLine("\n=== VICTOIRES PAR DATE ===");
             
             try
@@ -485,6 +670,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -492,6 +679,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterVictoiresParJoueur()
         {
+            Console.Clear();
             Console.WriteLine("\n=== VICTOIRES PAR JOUEUR ===");
             
             try
@@ -527,6 +715,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -534,6 +724,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterVictoiresParType()
         {
+            Console.Clear();
             Console.WriteLine("\n=== VICTOIRES PAR TYPE D'ÉPREUVE ===");
             
             try
@@ -569,6 +760,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -576,6 +769,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterVictoiresParJoueurTypeDate()
         {
+            Console.Clear();
             Console.WriteLine("\n=== VICTOIRES PAR JOUEUR, TYPE ET DATE ===");
             
             try
@@ -595,6 +789,7 @@ namespace JeuxDesprit
                     if (!int.TryParse(Console.ReadLine(), out int idJoueur) || !joueurs.ContainsKey(idJoueur))
                     {
                         Console.WriteLine("ID de joueur invalide.");
+                        Console.ReadKey();
                         return;
                     }
                     
@@ -608,6 +803,7 @@ namespace JeuxDesprit
                     if (!int.TryParse(Console.ReadLine(), out int idType) || !typesJeu.ContainsKey(idType))
                     {
                         Console.WriteLine("ID de type d'épreuve invalide.");
+                        Console.ReadKey();
                         return;
                     }
                     
@@ -632,6 +828,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -639,6 +837,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterPartiesParType()
         {
+            Console.Clear();
             Console.WriteLine("\n=== PARTIES JOUÉES PAR TYPE DE JEU ===");
             
             try
@@ -674,6 +873,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -681,6 +882,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterPartiesParDateEtType()
         {
+            Console.Clear();
             Console.WriteLine("\n=== PARTIES JOUÉES PAR DATE ET TYPE D'ÉPREUVE ===");
             
             try
@@ -693,6 +895,7 @@ namespace JeuxDesprit
                     if (!DateTime.TryParse(Console.ReadLine(), out DateTime date))
                     {
                         Console.WriteLine("Format de date invalide.");
+                        Console.ReadKey();
                         return;
                     }
                     
@@ -723,6 +926,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -730,6 +935,7 @@ namespace JeuxDesprit
         /// </summary>
         static void ConsulterPartiesParJoueurEtDate()
         {
+            Console.Clear();
             Console.WriteLine("\n=== PARTIES JOUÉES PAR JOUEUR ET DATE ===");
             
             try
@@ -748,6 +954,7 @@ namespace JeuxDesprit
                     if (!int.TryParse(Console.ReadLine(), out int idJoueur) || !joueurs.ContainsKey(idJoueur))
                     {
                         Console.WriteLine("ID de joueur invalide.");
+                        Console.ReadKey();
                         return;
                     }
                     
@@ -772,6 +979,8 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
             }
+            
+            Console.ReadKey();
         }
     }
 }
