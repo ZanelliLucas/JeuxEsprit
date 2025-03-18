@@ -658,7 +658,7 @@ namespace JeuxDesprit
                     {
                         // Utiliser une instance temporaire de Jeux pour appeler la méthode
                         Jeux jeux = new Jeux("temp", "temp", 1);
-                        jeux.afficherNbPartieJouéeParType(idType);
+                        jeux.afficherNbPartieJoueeParType(idType);
                     }
                     else
                     {
@@ -707,7 +707,7 @@ namespace JeuxDesprit
                     {
                         // Utiliser une instance temporaire de Jeux pour appeler la méthode
                         Jeux jeux = new Jeux("temp", "temp", 1);
-                        jeux.afficherNbPartieJouéeAUneDateParType(date, idType);
+                        jeux.afficherNbPartieJoueeAUneDateParType(date, idType);
                     }
                     else
                     {
@@ -756,7 +756,7 @@ namespace JeuxDesprit
                     {
                         // Utiliser une instance temporaire de Jeux pour appeler la méthode
                         Jeux jeux = new Jeux("temp", "temp", 1);
-                        jeux.afficherNbPartieJouéeJoueurAUneDate(idJoueur, date);
+                        jeux.afficherNbPartieJoueeJoueurAUneDate(idJoueur, date);
                     }
                     else
                     {
