@@ -29,6 +29,12 @@ namespace JeuxDesprit
         /// <returns>Niveau validé</returns>
         private string ValidateNiveau(string niveau)
         {
+            if (string.IsNullOrEmpty(niveau))
+            {
+                Console.WriteLine("Niveau non spécifié. Le niveau est défini à 'facile' par défaut.");
+                return "facile";
+            }
+            
             string niveauLower = niveau.ToLower();
             switch (niveauLower)
             {
@@ -61,7 +67,7 @@ namespace JeuxDesprit
 
             while (!choixValide)
             {
-                string input = Console.ReadLine() ?? "";
+                string? input = Console.ReadLine() ?? "";
                 switch (input)
                 {
                     case "1":

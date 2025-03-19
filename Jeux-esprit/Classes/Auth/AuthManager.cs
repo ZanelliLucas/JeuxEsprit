@@ -26,8 +26,14 @@ namespace JeuxDesprit
         /// <param name="email">Email de l'utilisateur</param>
         /// <param name="motDePasse">Mot de passe de l'utilisateur</param>
         /// <returns>Joueur connecté ou null si échec</returns>
-        public Joueur Connexion(string email, string motDePasse)
+        public Joueur? Connexion(string email, string motDePasse)
         {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(motDePasse))
+            {
+                Console.WriteLine("L'email et le mot de passe sont requis.");
+                return null;
+            }
+            
             // Hacher le mot de passe pour le comparer avec celui stocké en base
             string motDePasseHache = HashMotDePasse(motDePasse);
             
@@ -46,6 +52,12 @@ namespace JeuxDesprit
         /// <returns>ID de l'utilisateur créé ou -1 si échec</returns>
         public int CreerCompte(string nom, string email, string motDePasse, string avatar, string type)
         {
+            if (string.IsNullOrEmpty(nom) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(motDePasse))
+            {
+                Console.WriteLine("Le nom, l'email et le mot de passe sont requis.");
+                return -1;
+            }
+            
             // Vérifier si l'email existe déjà
             if (dbManager.EmailExiste(email))
             {
@@ -60,11 +72,11 @@ namespace JeuxDesprit
             Joueur joueur;
             if (type.ToLower() == "professionnel")
             {
-                joueur = new Professionnel(nom, email, avatar);
+                joueur = new Professionnel(nom, email, avatar ?? "default_avatar.png");
             }
             else
             {
-                joueur = new Amateur(nom, email, avatar);
+                joueur = new Amateur(nom, email, avatar ?? "default_avatar.png");
             }
             
             // Ajouter le joueur avec son mot de passe haché

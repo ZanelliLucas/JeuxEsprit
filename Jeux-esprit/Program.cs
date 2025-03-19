@@ -6,9 +6,9 @@ namespace JeuxDesprit
 {
     class Program
     {
-        private static DatabaseManager dbManager;
-        private static AuthManager authManager;
-        private static Joueur joueurActuel;
+        private static DatabaseManager dbManager = null!;
+        private static AuthManager authManager = null!;
+        private static Joueur? joueurActuel;
         private static bool applicationRunning = true;
         private static bool estConnecte = false;
 
@@ -58,7 +58,7 @@ namespace JeuxDesprit
             Console.WriteLine("===================================");
             Console.Write("Votre choix : ");
             
-            string choix = Console.ReadLine();
+            string? choix = Console.ReadLine();
             
             switch (choix)
             {
@@ -87,7 +87,7 @@ namespace JeuxDesprit
             Console.WriteLine("\n========== CONNEXION ==========");
             
             Console.Write("Email : ");
-            string email = Console.ReadLine();
+            string? email = Console.ReadLine() ?? "";
             
             Console.Write("Mot de passe : ");
             string motDePasse = MasquerMotDePasse();
@@ -116,26 +116,26 @@ namespace JeuxDesprit
             Console.WriteLine("\n========== CRÉATION DE COMPTE ==========");
             
             Console.Write("Nom : ");
-            string nom = Console.ReadLine();
+            string? nom = Console.ReadLine() ?? "";
             
             Console.Write("Email : ");
-            string email = Console.ReadLine();
+            string? email = Console.ReadLine() ?? "";
             
             Console.Write("Mot de passe : ");
             string motDePasse = MasquerMotDePasse();
             
             Console.Write("Avatar (description ou chemin) : ");
-            string avatar = Console.ReadLine();
+            string? avatar = Console.ReadLine();
             
             Console.WriteLine("Type de joueur :");
             Console.WriteLine("1 - Amateur");
             Console.WriteLine("2 - Professionnel");
             Console.Write("Votre choix : ");
-            string typeChoix = Console.ReadLine();
+            string? typeChoix = Console.ReadLine();
             
             string type = typeChoix == "2" ? "professionnel" : "amateur";
             
-            int idJoueur = authManager.CreerCompte(nom, email, motDePasse, avatar, type);
+            int idJoueur = authManager.CreerCompte(nom, email, motDePasse, avatar ?? "default_avatar.png", type);
             
             if (idJoueur != -1)
             {
@@ -196,7 +196,11 @@ namespace JeuxDesprit
         static void AfficherMenuPrincipal()
         {
             Console.Clear();
-            Console.WriteLine($"\nUtilisateur connecté : {joueurActuel.GetNom()}");
+            if (joueurActuel != null)
+            {
+                Console.WriteLine($"\nUtilisateur connecté : {joueurActuel.GetNom()}");
+            }
+            
             Console.WriteLine("\n========== MENU PRINCIPAL ==========");
             Console.WriteLine("1- Jeux");
             Console.WriteLine("2- Joueurs");
@@ -214,7 +218,7 @@ namespace JeuxDesprit
         /// </summary>
         static void TraiterChoixMenuPrincipal()
         {
-            string choix = Console.ReadLine();
+            string? choix = Console.ReadLine();
             
             switch (choix)
             {
@@ -263,7 +267,7 @@ namespace JeuxDesprit
                 Console.WriteLine("===============================");
                 Console.Write("Votre choix : ");
                 
-                string choix = Console.ReadLine()?.ToLower();
+                string? choix = Console.ReadLine()?.ToLower();
                 
                 switch (choix)
                 {
@@ -303,7 +307,7 @@ namespace JeuxDesprit
                 Console.WriteLine("==================================");
                 Console.Write("Votre choix : ");
                 
-                string choix = Console.ReadLine()?.ToLower();
+                string? choix = Console.ReadLine()?.ToLower();
                 
                 switch (choix)
                 {
@@ -334,19 +338,19 @@ namespace JeuxDesprit
             Console.WriteLine("\n=== AJOUTER UN JOUEUR ===");
             
             Console.Write("Nom : ");
-            string nom = Console.ReadLine();
+            string nom = Console.ReadLine() ?? "";
             
             Console.Write("Email : ");
-            string email = Console.ReadLine();
+            string email = Console.ReadLine() ?? "";
             
             Console.Write("Avatar (description ou chemin) : ");
-            string avatar = Console.ReadLine();
+            string? avatar = Console.ReadLine();
             
             Console.WriteLine("Type de joueur :");
             Console.WriteLine("1 - Amateur");
             Console.WriteLine("2 - Professionnel");
             Console.Write("Votre choix : ");
-            string typeChoix = Console.ReadLine();
+            string? typeChoix = Console.ReadLine();
             
             Joueur nouveauJoueur;
             
@@ -356,19 +360,19 @@ namespace JeuxDesprit
                     Console.Write("Niveau d'expérience (1-5) : ");
                     if (int.TryParse(Console.ReadLine(), out int niveauExp))
                     {
-                        nouveauJoueur = new Amateur(nom, email, avatar, niveauExp);
+                        nouveauJoueur = new Amateur(nom, email, avatar ?? "default_avatar.png", niveauExp);
                     }
                     else
                     {
-                        nouveauJoueur = new Amateur(nom, email, avatar);
+                        nouveauJoueur = new Amateur(nom, email, avatar ?? "default_avatar.png");
                     }
                     break;
                 case "2":
-                    nouveauJoueur = new Professionnel(nom, email, avatar);
+                    nouveauJoueur = new Professionnel(nom, email, avatar ?? "default_avatar.png");
                     break;
                 default:
                     Console.WriteLine("Type invalide. Création d'un joueur standard.");
-                    nouveauJoueur = new Joueur(nom, email, avatar);
+                    nouveauJoueur = new Joueur(nom, email, avatar ?? "default_avatar.png");
                     break;
             }
             
@@ -404,7 +408,7 @@ namespace JeuxDesprit
                 Console.WriteLine("=======================================");
                 Console.Write("Votre choix : ");
                 
-                string choix = Console.ReadLine()?.ToLower();
+                string? choix = Console.ReadLine()?.ToLower();
                 
                 switch (choix)
                 {
@@ -461,6 +465,13 @@ namespace JeuxDesprit
         /// </summary>
         static void MenuJouer()
         {
+            if (joueurActuel == null)
+            {
+                Console.WriteLine("Erreur: Aucun joueur connecté.");
+                Console.ReadKey();
+                return;
+            }
+            
             Console.Clear();
             // Présenter la bienvenue au joueur
             joueurActuel.afficherJoueur();
@@ -487,7 +498,7 @@ namespace JeuxDesprit
             string jeuChoisi = jeux[choixJeu - 1];
             
             // Instancier le jeu approprié
-            Jeux jeu = null;
+            Jeux? jeu = null;
             switch (jeuChoisi)
             {
                 case "Plus ou Moins":
@@ -608,7 +619,7 @@ namespace JeuxDesprit
                 Console.WriteLine("==========================================");
                 Console.Write("Votre choix : ");
                 
-                string choix = Console.ReadLine()?.ToLower();
+                string? choix = Console.ReadLine()?.ToLower();
                 
                 switch (choix)
                 {

@@ -55,6 +55,128 @@ namespace JeuxDesprit
         }
 
         /// <summary>
+        /// Vérifie les identifiants d'un utilisateur
+        /// </summary>
+        /// <param name="email">Email de l'utilisateur</param>
+        /// <param name="motDePasseHache">Mot de passe haché</param>
+        /// <returns>Joueur connecté ou null si échec</returns>
+        public Joueur? VerifierConnexion(string email, string motDePasseHache)
+        {
+            try
+            {
+                using (MySqlConnection connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT idJoueur, nom, email, avatar, type FROM Joueur " +
+                                   "WHERE email = @email AND motDePasse = @motDePasse";
+                    
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@email", email);
+                        command.Parameters.AddWithValue("@motDePasse", motDePasseHache);
+                        
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string nom = reader.GetString("nom");
+                                string emailUser = reader.GetString("email");
+                                string avatar = reader.GetString("avatar");
+                                string type = reader.GetString("type");
+                                
+                                if (type.ToLower() == "amateur")
+                                {
+                                    return new Amateur(nom, emailUser, avatar);
+                                }
+                                else if (type.ToLower() == "professionnel")
+                                {
+                                    return new Professionnel(nom, emailUser, avatar);
+                                }
+                                else
+                                {
+                                    return new Joueur(nom, emailUser, avatar);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la vérification des identifiants : {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Vérifie si un email existe déjà dans la base de données
+        /// </summary>
+        /// <param name="email">Email à vérifier</param>
+        /// <returns>True si l'email existe, False sinon</returns>
+        public bool EmailExiste(string email)
+        {
+            try
+            {
+                using (MySqlConnection connection = GetConnection())
+                {
+                    connection.Open();
+                    string query = "SELECT COUNT(*) FROM Joueur WHERE email = @email";
+                    
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@email", email);
+                        int count = Convert.ToInt32(command.ExecuteScalar());
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la vérification de l'email : {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un joueur avec son mot de passe haché dans la base de données
+        /// </summary>
+        /// <param name="joueur">Joueur à ajouter</param>
+        /// <param name="motDePasseHache">Mot de passe haché</param>
+        /// <returns>ID du joueur ajouté ou -1 si échec</returns>
+        public int AjouterJoueurAvecMotDePasse(Joueur joueur, string motDePasseHache)
+        {
+            try
+            {
+                using (MySqlConnection connection = GetConnection())
+                {
+                    connection.Open();
+                    string type = joueur is Amateur ? "amateur" : (joueur is Professionnel ? "professionnel" : "standard");
+                    string query = "INSERT INTO Joueur (nom, email, avatar, motDePasse, type) " +
+                                   "VALUES (@nom, @email, @avatar, @motDePasse, @type)";
+                    
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@nom", joueur.GetNom());
+                        command.Parameters.AddWithValue("@email", joueur.GetEmail());
+                        command.Parameters.AddWithValue("@avatar", joueur.GetAvatar());
+                        command.Parameters.AddWithValue("@motDePasse", motDePasseHache);
+                        command.Parameters.AddWithValue("@type", type);
+                        
+                        command.ExecuteNonQuery();
+                        return (int)command.LastInsertedId;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de l'ajout du joueur : {ex.Message}");
+                return -1;
+            }
+        }
+
+        /// <summary>
         /// Récupère la liste des niveaux de difficulté
         /// </summary>
         /// <returns>Liste des niveaux</returns>
@@ -123,7 +245,7 @@ namespace JeuxDesprit
         /// </summary>
         /// <param name="idJoueur">ID du joueur</param>
         /// <returns>Joueur (null si non trouvé)</returns>
-        public Joueur GetJoueurById(int idJoueur)
+        public Joueur? GetJoueurById(int idJoueur)
         {
             try
             {
@@ -164,7 +286,7 @@ namespace JeuxDesprit
             {
                 Console.WriteLine($"Erreur lors de la récupération du joueur : {ex.Message}");
             }
-            return new Joueur("Inconnu", "inconnu@example.com", "default_avatar.png");
+            return null;
         }
 
         /// <summary>

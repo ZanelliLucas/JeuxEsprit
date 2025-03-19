@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Fichier Joueur.cs
+using System;
 
 namespace JeuxDesprit
 {
@@ -44,7 +45,13 @@ namespace JeuxDesprit
             Console.WriteLine($"Email : {email}");
         }
     }
+}
 
+// Fichier Amateur.cs
+using System;
+
+namespace JeuxDesprit
+{
     /// <summary>
     /// Classe représentant un joueur amateur
     /// </summary>
@@ -79,7 +86,13 @@ namespace JeuxDesprit
             Console.WriteLine($"Niveau d'expérience : {niveauExperience}/5");
         }
     }
+}
 
+// Fichier Professionnel.cs
+using System;
+
+namespace JeuxDesprit
+{
     /// <summary>
     /// Classe représentant un joueur professionnel
     /// </summary>
@@ -135,4 +148,3 @@ namespace JeuxDesprit
             Console.WriteLine($"Parties gagnées : {partiesGagnees}");
         }
     }
-}
