@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jeux-esprit", "Jeux-esprit\Jeux-esprit.csproj", "{B1915A46-FCE9-486B-AB12-7362BBEB4E51}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jeux-EspritUI", "Jeux-EspritUI", "{A3D9A677-D6AD-4B6F-9113-67D413A06438}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jeux-EspritUI", "Jeux-EspritUI\Jeux-EspritUI.csproj", "{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,12 @@ Global
 		{B1915A46-FCE9-486B-AB12-7362BBEB4E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1915A46-FCE9-486B-AB12-7362BBEB4E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1915A46-FCE9-486B-AB12-7362BBEB4E51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FE992FD8-FFD1-4BBF-BF8A-0F3BBEAB3EE0} = {A3D9A677-D6AD-4B6F-9113-67D413A06438}
 	EndGlobalSection
 EndGlobal

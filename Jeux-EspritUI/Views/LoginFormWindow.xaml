@@ -1,0 +1,68 @@
+﻿<!-- Jeux-esprit.UI/Views/LoginFormWindow.xaml -->
+<Window x:Class="JeuxDesprit.UI.Views.LoginFormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JeuxDesprit.UI.Views"
+        mc:Ignorable="d"
+        Title="Connexion" Height="350" Width="450"
+        WindowStartupLocation="CenterOwner"
+        Background="#f0f0f0"
+        ResizeMode="NoResize">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titre -->
+        <TextBlock Grid.Row="0" 
+                   Text="Connexion à votre compte" 
+                   FontSize="22" 
+                   FontWeight="SemiBold" 
+                   Margin="0,0,0,20" 
+                   HorizontalAlignment="Center"/>
+
+        <!-- Formulaire -->
+        <StackPanel Grid.Row="1" Margin="40,0">
+            <TextBlock Text="Email:" FontSize="14" Margin="0,10,0,5"/>
+            <TextBox x:Name="TxtEmail" Height="35" FontSize="14" Padding="5"/>
+
+            <TextBlock Text="Mot de passe:" FontSize="14" Margin="0,15,0,5"/>
+            <PasswordBox x:Name="TxtPassword" Height="35" FontSize="14" Padding="5"/>
+
+            <TextBlock x:Name="TxtError" 
+                       Foreground="Red" 
+                       FontSize="12" 
+                       TextWrapping="Wrap" 
+                       Margin="0,15,0,0"
+                       Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button x:Name="BtnConnect" 
+                    Content="Se connecter" 
+                    Width="120" 
+                    Height="35" 
+                    FontSize="14" 
+                    Margin="10,0" 
+                    Background="#2ecc71" 
+                    Foreground="White"
+                    Click="BtnConnect_Click"/>
+            
+            <Button x:Name="BtnCancel" 
+                    Content="Annuler" 
+                    Width="120" 
+                    Height="35" 
+                    FontSize="14" 
+                    Margin="10,0" 
+                    Background="#e74c3c" 
+                    Foreground="White"
+                    Click="BtnCancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
