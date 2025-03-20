@@ -991,22 +991,23 @@ namespace JeuxDesprit.UI.Views
 
         private void BtnQuitGame_Click(object sender, RoutedEventArgs e)
         {
-            // Demander confirmation si la partie est en cours
+            // Arrêter le chronomètre
+            gameTimer.Stop();
+    
+            // Vérifier si la partie est en cours
             bool partieEnCours = !(gameWon || remainingAttemptsPlusMoins <= 0 || remainingAttemptsPendu <= 0 || 
-                                  remainingAttemptsCesar <= 0 || remainingAttemptsVigenere <= 0);
-            
+                                   remainingAttemptsCesar <= 0 || remainingAttemptsVigenere <= 0);
+    
+            // Demander confirmation si la partie est en cours
             if (partieEnCours)
             {
                 if (MessageBox.Show("Êtes-vous sûr de vouloir quitter la partie en cours ?", 
-                                  "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                        "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                 {
                     return;
                 }
             }
-            
-            // Arrêter le chronomètre
-            gameTimer.Stop();
-            
+    
             // Fermer la fenêtre
             this.Close();
         }
