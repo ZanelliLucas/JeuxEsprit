@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using JeuxDesprit;
 
-namespace JeuxDesprit.UI.Views
+namespace JeuxDespritUI.Views
 {
     /// <summary>
     /// Logique d'interaction pour PlayersWindow.xaml

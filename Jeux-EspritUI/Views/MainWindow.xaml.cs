@@ -3,7 +3,7 @@ using System;
 using System.Windows;
 using JeuxDesprit;
 
-namespace JeuxDesprit.UI.Views
+namespace JeuxDespritUI.Views
 {
     /// <summary>
     /// Logique d'interaction pour MainWindow.xaml

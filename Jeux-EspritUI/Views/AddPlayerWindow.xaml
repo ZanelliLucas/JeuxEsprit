@@ -1,10 +1,10 @@
 ﻿<!-- Jeux-esprit.UI/Views/AddPlayerWindow.xaml -->
-<Window x:Class="JeuxDesprit.UI.Views.AddPlayerWindow"
+<Window x:Class="JeuxDespritUI.Views.AddPlayerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:JeuxDesprit.UI.Views"
+        xmlns:local="clr-namespace:JeuxDespritUI.Views"
         mc:Ignorable="d"
         Title="Ajouter un joueur" Height="450" Width="500"
         WindowStartupLocation="CenterOwner"

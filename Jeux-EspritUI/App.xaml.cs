@@ -3,7 +3,7 @@ using System;
 using System.Windows;
 using JeuxDesprit;
 
-namespace JeuxDesprit.UI
+namespace JeuxDespritUI
 {
     /// <summary>
     /// Logique d'interaction pour App.xaml
