@@ -1,7 +1,6 @@
 ﻿// Jeux-esprit.UI/App.xaml.cs
 using System;
 using System.Windows;
-using JeuxDesprit;
 
 namespace JeuxEspritUI
 {
@@ -15,7 +14,7 @@ namespace JeuxEspritUI
             base.OnStartup(e);
             
             // Tester la connexion à la base de données
-            var dbManager = new DatabaseManager();
+            var dbManager = new JeuxDesprit.DatabaseManager();
             if (!dbManager.TestConnection())
             {
                 MessageBox.Show("Impossible de se connecter à la base de données. L'application fonctionnera avec des données limitées.",

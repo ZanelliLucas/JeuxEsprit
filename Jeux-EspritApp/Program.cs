@@ -2,7 +2,7 @@
 using System.Windows;
 using JeuxEspritUI.Views;
 
-namespace JeuxDesprit
+namespace JeuxEspritApp
 {
     public class Program
     {
