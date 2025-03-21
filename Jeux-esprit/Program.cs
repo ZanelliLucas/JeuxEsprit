@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using JeuxDespritUI.Views;
+using JeuxEspritUI.Views;
 
 namespace JeuxDesprit
 {

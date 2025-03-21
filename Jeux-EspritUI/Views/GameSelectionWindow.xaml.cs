@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using JeuxDesprit;
 
-namespace JeuxDespritUI.Views
+namespace JeuxEspritUI.Views
 {
     /// <summary>
     /// Logique d'interaction pour GameSelectionWindow.xaml

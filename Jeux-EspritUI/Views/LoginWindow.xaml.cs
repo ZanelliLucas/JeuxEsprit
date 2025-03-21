@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 
-namespace JeuxDespritUI.Views
+namespace JeuxEspritUI.Views
 {
     /// <summary>
     /// Logique d'interaction pour LoginWindow.xaml

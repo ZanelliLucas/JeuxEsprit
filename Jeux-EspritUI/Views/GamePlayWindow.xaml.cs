@@ -10,7 +10,7 @@ using System.Windows.Threading;
 using System.Text;
 using JeuxDesprit;
 
-namespace JeuxDespritUI.Views
+namespace JeuxEspritUI.Views
 {
     /// <summary>
     /// Logique d'interaction pour GamePlayWindow.xaml
