@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0-windows</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
         <RootNamespace>JeuxDesprit</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <UseWPF>true</UseWPF>
     </PropertyGroup>
 
     <ItemGroup>

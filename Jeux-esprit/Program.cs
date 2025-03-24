@@ -898,23 +898,30 @@ namespace JeuxDesprit
         }
 
         /// <summary>
-        /// Consulte le nombre de parties jouées à une date et un type d'épreuve donnés
+        /// Consulte le nombre de victoires pour un joueur, un type d'épreuve et une date donnés
         /// </summary>
-        static void ConsulterPartiesParDateEtType()
+        static void ConsulterVictoiresParJoueurTypeDate()
         {
             Console.Clear();
-            Console.WriteLine("\n=== PARTIES JOUÉES PAR DATE ET TYPE D'ÉPREUVE ===");
+            Console.WriteLine("\n=== VICTOIRES PAR JOUEUR, TYPE ET DATE ===");
             
             try
             {
+                Dictionary<int, string> joueurs = dbManager.GetJoueurs();
                 Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
                 
-                if (typesJeu.Count > 0)
+                if (joueurs.Count > 0 && typesJeu.Count > 0)
                 {
-                    Console.Write("Entrez la date (format JJ/MM/AAAA) : ");
-                    if (!DateTime.TryParse(Console.ReadLine(), out DateTime date))
+                    Console.WriteLine("Liste des joueurs :");
+                    foreach (var joueur in joueurs)
                     {
-                        Console.WriteLine("Format de date invalide.");
+                        Console.WriteLine($"{joueur.Key} - {joueur.Value}");
+                    }
+                    
+                    Console.Write("\nEntrez l'ID du joueur : ");
+                    if (!int.TryParse(Console.ReadLine(), out int idJoueur) || !joueurs.ContainsKey(idJoueur))
+                    {
+                        Console.WriteLine("ID de joueur invalide.");
                         Console.ReadKey();
                         return;
                     }
@@ -926,20 +933,29 @@ namespace JeuxDesprit
                     }
                     
                     Console.Write("\nEntrez l'ID du type d'épreuve : ");
-                    if (int.TryParse(Console.ReadLine(), out int idType) && typesJeu.ContainsKey(idType))
+                    if (!int.TryParse(Console.ReadLine(), out int idType) || !typesJeu.ContainsKey(idType))
+                    {
+                        Console.WriteLine("ID de type d'épreuve invalide.");
+                        Console.ReadKey();
+                        return;
+                    }
+                    
+                    Console.Write("\nEntrez la date (format JJ/MM/AAAA) : ");
+                    if (DateTime.TryParse(Console.ReadLine(), out DateTime date))
                     {
                         // Utiliser une instance temporaire de Jeux pour appeler la méthode
                         Jeux jeux = new Jeux("temp", "temp", 1);
-                        jeux.afficherNbPartieJoueeAUneDateParType(date, idType);
+                        jeux.afficherNbVictoireJoueurParTypeAUneDate(idJoueur, idType, date);
                     }
                     else
                     {
-                        Console.WriteLine("ID de type d'épreuve invalide.");
+                        Console.WriteLine("Format de date invalide.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Aucun type d'épreuve trouvé ou erreur de connexion à la base de données.");
+                    Console.WriteLine("Aucun joueur ou type d'épreuve trouvé ou erreur de connexion à la base de données.");
+                    Console.WriteLine("En mode invité, les statistiques ne sont pas disponibles.");
                 }
             }
             catch (Exception ex)
