@@ -16,16 +16,27 @@ namespace JeuxDesprit
         {
             Console.WriteLine("Bienvenue dans l'application Jeux d'Esprit!");
             
-            // Initialiser le gestionnaire de base de données
-            dbManager = new DatabaseManager();
-            
-            // Initialiser le gestionnaire d'authentification
-            authManager = new AuthManager(dbManager);
-            
-            // Tester la connexion à la base de données
-            if (!dbManager.TestConnection())
+            try
             {
-                Console.WriteLine("Impossible de se connecter à la base de données. L'application va s'exécuter sans persistance des données.");
+                // Initialiser le gestionnaire de base de données
+                dbManager = new DatabaseManager();
+                
+                // Initialiser le gestionnaire d'authentification
+                authManager = new AuthManager(dbManager);
+                
+                // Tester la connexion à la base de données
+                if (!dbManager.TestConnection())
+                {
+                    Console.WriteLine("Impossible de se connecter à la base de données. L'application va s'exécuter sans persistance des données.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur d'initialisation: {ex.Message}");
+                Console.WriteLine("L'application fonctionnera en mode dégradé sans base de données.");
+                // Création d'un DatabaseManager en mode mémoire
+                dbManager = new DatabaseManager("localhost", "root", "JeuxdEsprit", "root");
+                authManager = new AuthManager(dbManager);
             }
             
             // Afficher l'écran d'accueil avec connexion/inscription
@@ -54,7 +65,8 @@ namespace JeuxDesprit
             Console.WriteLine("\n========== JEUX D'ESPRIT ==========");
             Console.WriteLine("1- Se connecter");
             Console.WriteLine("2- Créer un compte");
-            Console.WriteLine("3- Quitter l'application");
+            Console.WriteLine("3- Mode invité");
+            Console.WriteLine("4- Quitter l'application");
             Console.WriteLine("===================================");
             Console.Write("Votre choix : ");
             
@@ -69,6 +81,9 @@ namespace JeuxDesprit
                     CreerCompte();
                     break;
                 case "3":
+                    ConnexionInvite();
+                    break;
+                case "4":
                     applicationRunning = false;
                     break;
                 default:
@@ -76,6 +91,17 @@ namespace JeuxDesprit
                     Console.ReadKey();
                     break;
             }
+        }
+
+        /// <summary>
+        /// Permet une connexion en mode invité pour tester l'application sans base de données
+        /// </summary>
+        static void ConnexionInvite()
+        {
+            joueurActuel = new Amateur("Invité", "invite@example.com", "default_avatar.png");
+            Console.WriteLine("\nConnexion en mode invité réussie !");
+            estConnecte = true;
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -92,18 +118,35 @@ namespace JeuxDesprit
             Console.Write("Mot de passe : ");
             string motDePasse = MasquerMotDePasse();
             
-            joueurActuel = authManager.Connexion(email, motDePasse);
-            
-            if (joueurActuel != null)
+            try
             {
-                Console.WriteLine("\nConnexion réussie !");
-                estConnecte = true;
-                Console.ReadKey();
+                joueurActuel = authManager.Connexion(email, motDePasse);
+                
+                if (joueurActuel != null)
+                {
+                    Console.WriteLine("\nConnexion réussie !");
+                    estConnecte = true;
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine("\nÉchec de la connexion. Vérifiez vos informations.");
+                    Console.ReadKey();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("\nÉchec de la connexion. Vérifiez vos informations.");
-                Console.ReadKey();
+                Console.WriteLine($"\nErreur lors de la connexion : {ex.Message}");
+                Console.WriteLine("Voulez-vous vous connecter en mode invité ? (O/N)");
+                string? reponse = Console.ReadLine()?.ToUpper();
+                if (reponse == "O")
+                {
+                    ConnexionInvite();
+                }
+                else
+                {
+                    Console.ReadKey();
+                }
             }
         }
 
@@ -135,15 +178,22 @@ namespace JeuxDesprit
             
             string type = typeChoix == "2" ? "professionnel" : "amateur";
             
-            int idJoueur = authManager.CreerCompte(nom, email, motDePasse, avatar ?? "default_avatar.png", type);
-            
-            if (idJoueur != -1)
+            try
             {
-                Console.WriteLine("\nCompte créé avec succès ! Vous pouvez maintenant vous connecter.");
+                int idJoueur = authManager.CreerCompte(nom, email, motDePasse, avatar ?? "default_avatar.png", type);
+                
+                if (idJoueur != -1)
+                {
+                    Console.WriteLine("\nCompte créé avec succès ! Vous pouvez maintenant vous connecter.");
+                }
+                else
+                {
+                    Console.WriteLine("\nÉchec de la création du compte. Veuillez réessayer.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("\nÉchec de la création du compte. Veuillez réessayer.");
+                Console.WriteLine($"\nErreur lors de la création du compte : {ex.Message}");
             }
             
             Console.ReadKey();
@@ -376,15 +426,23 @@ namespace JeuxDesprit
                     break;
             }
             
-            int idJoueur = dbManager.AjouterJoueur(nouveauJoueur);
-            
-            if (idJoueur != -1)
+            try
             {
-                Console.WriteLine($"Joueur ajouté avec succès ! ID : {idJoueur}");
+                int idJoueur = dbManager.AjouterJoueur(nouveauJoueur);
+                
+                if (idJoueur != -1)
+                {
+                    Console.WriteLine($"Joueur ajouté avec succès ! ID : {idJoueur}");
+                }
+                else
+                {
+                    Console.WriteLine("Erreur lors de l'ajout du joueur. Joueur créé en mémoire uniquement.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de l'ajout du joueur. Joueur créé en mémoire uniquement.");
+                Console.WriteLine($"Erreur lors de l'ajout du joueur: {ex.Message}");
+                Console.WriteLine("Joueur créé en mémoire uniquement.");
             }
             
             Console.ReadKey();
@@ -442,18 +500,26 @@ namespace JeuxDesprit
             Console.Clear();
             Console.WriteLine("\n=== TYPES DE JEU DISPONIBLES ===");
             
-            Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
-            
-            if (typesJeu.Count > 0)
+            try
             {
-                foreach (var type in typesJeu)
+                Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
+                
+                if (typesJeu.Count > 0)
                 {
-                    Console.WriteLine($"ID: {type.Key}, Libellé: {type.Value}");
+                    foreach (var type in typesJeu)
+                    {
+                        Console.WriteLine($"ID: {type.Key}, Libellé: {type.Value}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Aucun type de jeu trouvé ou erreur de connexion à la base de données.");
+                    Console.WriteLine("Types de jeu par défaut : Cérébral, Tactique");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Aucun type de jeu trouvé ou erreur de connexion à la base de données.");
+                Console.WriteLine($"Erreur lors de la récupération des types de jeu: {ex.Message}");
                 Console.WriteLine("Types de jeu par défaut : Cérébral, Tactique");
             }
             
@@ -534,63 +600,71 @@ namespace JeuxDesprit
             
             // Exécuter le jeu approprié
             bool gagne = false;
-            switch (jeuChoisi)
-            {
-                case "Plus ou Moins":
-                    gagne = ((PlusMoins)jeu).jouerPlusMoins(joueurActuel, niveau);
-                    break;
-                case "Pendu":
-                    gagne = ((Pendu)jeu).jouerPendu(joueurActuel, niveau);
-                    break;
-                case "César":
-                    gagne = ((Cesar)jeu).jouerCesar(joueurActuel, niveau);
-                    break;
-                case "Vigenère":
-                    gagne = ((Vigenere)jeu).jouerVigenere(joueurActuel, niveau);
-                    break;
-            }
-            
-            // Mettre à jour et afficher le statut de la partie
-            partie.SetStatut(gagne ? "gagné" : "perdu");
-            partie.statutPartie();
-            
-            // Si le joueur est professionnel et a gagné, incrémenter ses parties gagnées
-            if (gagne && joueurActuel is Professionnel professionnel)
-            {
-                professionnel.IncrementPartiesGagnees();
-            }
-            
-            // Enregistrer la partie dans la base de données
             try
             {
-                int idJeu = dbManager.GetJeux().FirstOrDefault(j => j.Value == jeuChoisi).Key;
-                if (idJeu != 0)
+                switch (jeuChoisi)
                 {
-                    int idJoueur = dbManager.GetJoueurs().FirstOrDefault(j => j.Value == joueurActuel.GetNom()).Key;
-                    if (idJoueur == 0) // Joueur pas encore dans la BDD
+                    case "Plus ou Moins":
+                        gagne = ((PlusMoins)jeu).jouerPlusMoins(joueurActuel, niveau);
+                        break;
+                    case "Pendu":
+                        gagne = ((Pendu)jeu).jouerPendu(joueurActuel, niveau);
+                        break;
+                    case "César":
+                        gagne = ((Cesar)jeu).jouerCesar(joueurActuel, niveau);
+                        break;
+                    case "Vigenère":
+                        gagne = ((Vigenere)jeu).jouerVigenere(joueurActuel, niveau);
+                        break;
+                }
+                
+                // Mettre à jour et afficher le statut de la partie
+                partie.SetStatut(gagne ? "gagné" : "perdu");
+                partie.statutPartie();
+                
+                // Si le joueur est professionnel et a gagné, incrémenter ses parties gagnées
+                if (gagne && joueurActuel is Professionnel professionnel)
+                {
+                    professionnel.IncrementPartiesGagnees();
+                }
+                
+                // Enregistrer la partie dans la base de données
+                try
+                {
+                    int idJeu = dbManager.GetJeux().FirstOrDefault(j => j.Value == jeuChoisi).Key;
+                    if (idJeu != 0)
                     {
-                        idJoueur = dbManager.AjouterJoueur(joueurActuel);
-                    }
-                    
-                    if (idJoueur != -1)
-                    {
-                        // Déterminer l'ID du niveau
-                        int idNiveau = 1; // Par défaut facile
-                        switch (niveau)
+                        int idJoueur = dbManager.GetJoueurs().FirstOrDefault(j => j.Value == joueurActuel.GetNom()).Key;
+                        if (idJoueur == 0) // Joueur pas encore dans la BDD
                         {
-                            case "moyen": idNiveau = 2; break;
-                            case "difficile": idNiveau = 3; break;
-                            case "expert": idNiveau = 4; break;
+                            idJoueur = dbManager.AjouterJoueur(joueurActuel);
                         }
                         
-                        // Enregistrer la partie
-                        dbManager.EnregistrerPartie(idJeu, idJoueur, idNiveau, partie.GetStatut(), partie.GetScore(), partie.GetTempsEffectue());
+                        if (idJoueur != -1)
+                        {
+                            // Déterminer l'ID du niveau
+                            int idNiveau = 1; // Par défaut facile
+                            switch (niveau)
+                            {
+                                case "moyen": idNiveau = 2; break;
+                                case "difficile": idNiveau = 3; break;
+                                case "expert": idNiveau = 4; break;
+                            }
+                            
+                            // Enregistrer la partie
+                            dbManager.EnregistrerPartie(idJeu, idJoueur, idNiveau, partie.GetStatut(), partie.GetScore(), partie.GetTempsEffectue());
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erreur lors de l'enregistrement de la partie : {ex.Message}");
+                    Console.WriteLine("La partie n'a pas été enregistrée dans la base de données.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de l'enregistrement de la partie : {ex.Message}");
+                Console.WriteLine($"Erreur lors de l'exécution du jeu : {ex.Message}");
             }
             
             Console.WriteLine("\nAppuyez sur une touche pour revenir au menu principal...");
@@ -720,6 +794,7 @@ namespace JeuxDesprit
                 else
                 {
                     Console.WriteLine("Aucun joueur trouvé ou erreur de connexion à la base de données.");
+                    Console.WriteLine("Si vous êtes en mode invité, les statistiques ne sont pas disponibles.");
                 }
             }
             catch (Exception ex)
@@ -765,79 +840,13 @@ namespace JeuxDesprit
                 else
                 {
                     Console.WriteLine("Aucun type d'épreuve trouvé ou erreur de connexion à la base de données.");
+                    Console.WriteLine("Types d'épreuve par défaut : Cérébral, Tactique");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur : {ex.Message}");
-            }
-            
-            Console.ReadKey();
-        }
-
-        /// <summary>
-        /// Consulte le nombre de victoires pour un joueur, un type d'épreuve et une date donnés
-        /// </summary>
-        static void ConsulterVictoiresParJoueurTypeDate()
-        {
-            Console.Clear();
-            Console.WriteLine("\n=== VICTOIRES PAR JOUEUR, TYPE ET DATE ===");
-            
-            try
-            {
-                Dictionary<int, string> joueurs = dbManager.GetJoueurs();
-                Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
-                
-                if (joueurs.Count > 0 && typesJeu.Count > 0)
-                {
-                    Console.WriteLine("Liste des joueurs :");
-                    foreach (var joueur in joueurs)
-                    {
-                        Console.WriteLine($"{joueur.Key} - {joueur.Value}");
-                    }
-                    
-                    Console.Write("\nEntrez l'ID du joueur : ");
-                    if (!int.TryParse(Console.ReadLine(), out int idJoueur) || !joueurs.ContainsKey(idJoueur))
-                    {
-                        Console.WriteLine("ID de joueur invalide.");
-                        Console.ReadKey();
-                        return;
-                    }
-                    
-                    Console.WriteLine("\nListe des types d'épreuve :");
-                    foreach (var type in typesJeu)
-                    {
-                        Console.WriteLine($"{type.Key} - {type.Value}");
-                    }
-                    
-                    Console.Write("\nEntrez l'ID du type d'épreuve : ");
-                    if (!int.TryParse(Console.ReadLine(), out int idType) || !typesJeu.ContainsKey(idType))
-                    {
-                        Console.WriteLine("ID de type d'épreuve invalide.");
-                        Console.ReadKey();
-                        return;
-                    }
-                    
-                    Console.Write("\nEntrez la date (format JJ/MM/AAAA) : ");
-                    if (DateTime.TryParse(Console.ReadLine(), out DateTime date))
-                    {
-                        // Utiliser une instance temporaire de Jeux pour appeler la méthode
-                        Jeux jeux = new Jeux("temp", "temp", 1);
-                        jeux.afficherNbVictoireJoueurParTypeAUneDate(idJoueur, idType, date);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Format de date invalide.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Aucun joueur ou type d'épreuve trouvé ou erreur de connexion à la base de données.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur : {ex.Message}");
+                Console.WriteLine("Impossible de récupérer les types d'épreuve depuis la base de données.");
             }
             
             Console.ReadKey();
