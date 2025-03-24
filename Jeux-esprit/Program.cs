@@ -758,6 +758,59 @@ namespace JeuxDesprit
             
             Console.ReadKey();
         }
+        
+        /// <summary>
+        /// Consulte le nombre de parties jouées à une date donnée et un type d'épreuve donné
+        /// </summary>
+        static void ConsulterPartiesParDateEtType()
+        {
+            Console.Clear();
+            Console.WriteLine("\n=== PARTIES JOUÉES PAR DATE ET TYPE D'ÉPREUVE ===");
+    
+            try
+            {
+                Dictionary<int, string> typesJeu = dbManager.GetTypesJeu();
+        
+                if (typesJeu.Count > 0)
+                {
+                    Console.WriteLine("Liste des types d'épreuve :");
+                    foreach (var type in typesJeu)
+                    {
+                        Console.WriteLine($"{type.Key} - {type.Value}");
+                    }
+            
+                    Console.Write("\nEntrez l'ID du type d'épreuve : ");
+                    if (!int.TryParse(Console.ReadLine(), out int idType) || !typesJeu.ContainsKey(idType))
+                    {
+                        Console.WriteLine("ID de type d'épreuve invalide.");
+                        Console.ReadKey();
+                        return;
+                    }
+            
+                    Console.Write("\nEntrez la date (format JJ/MM/AAAA) : ");
+                    if (DateTime.TryParse(Console.ReadLine(), out DateTime date))
+                    {
+                        // Utiliser une instance temporaire de Jeux pour appeler la méthode
+                        Jeux jeux = new Jeux("temp", "temp", 1);
+                        jeux.afficherNbPartieJoueeAUneDateParType(date, idType);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Format de date invalide.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Aucun type d'épreuve trouvé ou erreur de connexion à la base de données.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur : {ex.Message}");
+            }
+    
+            Console.ReadKey();
+        }
 
         /// <summary>
         /// Consulte le nombre de victoires pour un joueur donné
