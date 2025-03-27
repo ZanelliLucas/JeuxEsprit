@@ -1,5 +1,4 @@
-﻿// Fichier: Joueur.cs
-using System;
+﻿using System;
 
 namespace JeuxDesprit
 {

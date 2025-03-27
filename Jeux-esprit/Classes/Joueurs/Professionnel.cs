@@ -1,4 +1,3 @@
-// Fichier: Professionnel.cs
 using System;
 
 namespace JeuxDesprit

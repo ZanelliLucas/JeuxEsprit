@@ -1,4 +1,3 @@
-// Fichier: Amateur.cs
 using System;
 
 namespace JeuxDesprit
